@@ -1,0 +1,453 @@
+/* Additional custom styles for glassmorphism UI */
+:root {
+    --primary-gradient: linear-gradient(135deg, #6e8efb, #a777e3);
+    --secondary-gradient: linear-gradient(135deg, #a777e3, #6e8efb);
+    --dark-bg: #0f172a;
+    --darker-bg: #0a1122;
+    --dark-surface: #1e293b;
+    --dark-card: #334155;
+    --dark-border: #475569;
+    --dark-text: #f8fafc;
+    --dark-text-secondary: #cbd5e1;
+    --user-message-gradient: linear-gradient(135deg, #6e8efb, #a777e3);
+    --assistant-message-bg: rgba(30, 41, 59, 0.8);
+    --glass-effect: rgba(255, 255, 255, 0.05);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.36);
+    --neon-shadow: 0 0 10px rgba(110, 142, 251, 0.5), 0 0 20px rgba(110, 142, 251, 0.3);
+    --code-bg: rgba(15, 23, 42, 0.6);
+    --code-border: #6e8efb;
+    --code-text: #f8fafc;
+}
+
+/* Message styling */
+.message {
+    position: relative;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+.message.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.message:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.message-content {
+    margin-top: 8px;
+}
+
+/* Code block styling enhancements */
+pre {
+    background-color: var(--code-bg);
+    color: var(--code-text);
+    padding: 16px;
+    border-radius: 12px;
+    overflow-x: auto;
+    margin: 15px 0;
+    font-size: 0.9rem;
+    border-left: 4px solid var(--code-border);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+code {
+    font-family: 'Courier New', Courier, monospace;
+    color: #a5b4fc;
+}
+
+/* Inline code */
+.assistant-message code:not(pre code) {
+    background: rgba(110, 142, 251, 0.15);
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    color: #c4b5fd;
+}
+
+/* Markdown styling */
+.assistant-message h1, 
+.assistant-message h2, 
+.assistant-message h3, 
+.assistant-message h4 {
+    margin-top: 16px;
+    margin-bottom: 12px;
+    font-weight: 600;
+    color: var(--dark-text);
+    line-height: 1.4;
+}
+
+.assistant-message h1 {
+    font-size: 1.5rem;
+    border-bottom: 1px solid var(--dark-border);
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.assistant-message h2 {
+    font-size: 1.3rem;
+    color: #a5b4fc;
+    padding-left: 8px;
+    border-left: 3px solid #6e8efb;
+}
+
+.assistant-message h3 {
+    font-size: 1.1rem;
+    color: #c4b5fd;
+}
+
+.assistant-message ul, 
+.assistant-message ol {
+    padding-left: 24px;
+    margin: 12px 0;
+}
+
+.assistant-message li {
+    margin-bottom: 8px;
+    line-height: 1.6;
+}
+
+.assistant-message p {
+    margin: 12px 0;
+    line-height: 1.7;
+}
+
+.assistant-message a {
+    color: #93c5fd;
+    text-decoration: none;
+    border-bottom: 1px dotted #93c5fd;
+    transition: all 0.2s;
+    padding: 0 2px;
+}
+
+.assistant-message a:hover {
+    color: #6e8efb;
+    border-bottom: 1px solid #6e8efb;
+    background: rgba(110, 142, 251, 0.1);
+    border-radius: 2px;
+}
+
+.assistant-message blockquote {
+    border-left: 4px solid #6e8efb;
+    padding: 12px 20px;
+    background: rgba(110, 142, 251, 0.1);
+    margin: 15px 0;
+    border-radius: 0 12px 12px 0;
+    font-style: italic;
+}
+
+/* Tables */
+.assistant-message table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 20px 0;
+    overflow-x: auto;
+    display: block;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.assistant-message th {
+    background: var(--primary-gradient);
+    color: white;
+    font-weight: 600;
+    padding: 12px 16px;
+    text-align: left;
+}
+
+.assistant-message td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--dark-border);
+}
+
+.assistant-message tr:nth-child(even) {
+    background-color: rgba(110, 142, 251, 0.05);
+}
+
+.assistant-message tr:last-child td {
+    border-bottom: none;
+}
+
+/* Animation for new messages */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Floating animation for particles */
+@keyframes float {
+    0% { transform: translateY(0) translateX(0); }
+    25% { transform: translateY(-10px) translateX(10px); }
+    50% { transform: translateY(0) translateX(20px); }
+    75% { transform: translateY(10px) translateX(10px); }
+    100% { transform: translateY(0) translateX(0); }
+}
+
+.particle {
+    animation: float 30s infinite ease-in-out;
+}
+
+/* Pulse animation for typing indicator */
+@keyframes typing {
+    0% { transform: translateY(0); opacity: 0.5; }
+    50% { transform: translateY(-10px); opacity: 1; }
+    100% { transform: translateY(0); opacity: 0.5; }
+}
+
+/* Highlight text selection */
+::selection {
+    background: rgba(110, 142, 251, 0.3);
+    color: white;
+}
+
+/* Transition effects */
+.chat-body {
+    transition: opacity 0.3s ease;
+}
+
+/* Responsive adjustments for markdown content */
+@media (max-width: 768px) {
+    .assistant-message h1 {
+        font-size: 1.3rem;
+    }
+    
+    .assistant-message h2 {
+        font-size: 1.1rem;
+    }
+    
+    .assistant-message h3 {
+        font-size: 1rem;
+    }
+    
+    pre {
+        padding: 12px;
+        font-size: 0.8rem;
+    }
+    
+    .assistant-message table {
+        font-size: 0.9rem;
+    }
+    
+    .assistant-message th,
+    .assistant-message td {
+        padding: 8px 12px;
+    }
+}
+
+/* Special styling for code syntax highlighting */
+.hljs-keyword {
+    color: #c4b5fd;
+}
+
+.hljs-string {
+    color: #86efac;
+}
+
+.hljs-number {
+    color: #fca5a5;
+}
+
+.hljs-comment {
+    color: #94a3b8;
+    font-style: italic;
+}
+
+.hljs-function {
+    color: #93c5fd;
+}
+
+/* Tooltip styling */
+.tooltip {
+    position: relative;
+    display: inline-block;
+    border-bottom: 1px dotted #93c5fd;
+    cursor: help;
+}
+
+.tooltip .tooltip-text {
+    visibility: hidden;
+    background: rgba(15, 23, 42, 0.9);
+    color: #f8fafc;
+    text-align: center;
+    border-radius: 8px;
+    padding: 8px 12px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-size: 0.9rem;
+    width: 200px;
+}
+
+.tooltip:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Keyboard key styling */
+kbd {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--dark-border);
+    border-radius: 4px;
+    box-shadow: 0 2px 0 var(--dark-border);
+    color: var(--dark-text);
+    display: inline-block;
+    font-size: 0.8rem;
+    font-family: monospace;
+    line-height: 1;
+    padding: 3px 6px;
+    margin: 0 2px;
+    vertical-align: middle;
+}
+
+/* Badge styling */
+.badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin: 0 4px;
+    background: var(--primary-gradient);
+    color: white;
+}
+
+/* Image styling in messages */
+.assistant-message img {
+    max-width: 100%;
+    border-radius: 12px;
+    margin: 10px 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Horizontal rule styling */
+.assistant-message hr {
+    border: 0;
+    height: 1px;
+    background: var(--dark-border);
+    margin: 20px 0;
+    background-image: linear-gradient(to right, transparent, var(--dark-border), transparent);
+}
+
+/* Details/Summary styling */
+.assistant-message details {
+    margin: 15px 0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(110, 142, 251, 0.05);
+    border: 1px solid var(--dark-border);
+}
+
+.assistant-message summary {
+    padding: 12px 16px;
+    cursor: pointer;
+    background: rgba(110, 142, 251, 0.1);
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.assistant-message summary:hover {
+    background: rgba(110, 142, 251, 0.2);
+}
+
+.assistant-message details[open] summary {
+    border-bottom: 1px solid var(--dark-border);
+}
+
+.assistant-message details > div {
+    padding: 12px 16px;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(30, 41, 59, 0.2);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(110, 142, 251, 0.3);
+    border-radius: 10px;
+    border: 2px solid rgba(30, 41, 59, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(110, 142, 251, 0.5);
+}
+
+/* Example questions in empty state */
+.example-questions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.example-question {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px 15px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 1px solid var(--glass-border);
+    font-size: 0.9rem;
+}
+
+.example-question:hover {
+    background: rgba(110, 142, 251, 0.1);
+    transform: translateY(-2px);
+    border-color: rgba(110, 142, 251, 0.3);
+}
+
+/* Upload another document button */
+.upload-another {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.btn-secondary.btn-sm {
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--dark-text);
+    cursor: pointer;
+    transition: all 0.3s;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-secondary.btn-sm:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(110, 142, 251, 0.3);
+    transform: translateY(-2px);
+}
