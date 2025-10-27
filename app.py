@@ -1,4 +1,4 @@
-'''import streamlit as st
+import streamlit as st
 import datetime
 from rag_utils import answer_query
 
@@ -83,10 +83,10 @@ with col_main:
             # user (left)
             st.markdown(
                 f'''
-                <div class="chat-row">
-                  <div class="bubble user">{q}</div>
-                  <div class="ts" style="clear:left;">{ts}</div>
-                </div>
+<div class="chat-row">
+  <div class="bubble user">{q}</div>
+  <div class="ts" style="clear:left;">{ts}</div>
+</div>
                 ''',
                 unsafe_allow_html=True,
             )
@@ -94,10 +94,10 @@ with col_main:
             # assistant (right)
             st.markdown(
                 f'''
-                <div class="chat-row">
-                  <div class="bubble assistant">{a}</div>
-                  <div class="ts" style="text-align:right; clear:right;">{ts}</div>
-                </div>
+<div class="chat-row">
+  <div class="bubble assistant">{a}</div>
+  <div class="ts" style="text-align:right; clear:right;">{ts}</div>
+</div>
                 ''',
                 unsafe_allow_html=True,
             )
@@ -112,59 +112,11 @@ with col_main:
         if user_input:
             q = user_input.strip()
             if q:
-                # Add user question to chat history immediately
-                ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                st.session_state.chat_history.append({"q": q, "a": "", "ts": ts})
-                
-                # Add typing indicator
-                st.markdown(
-                    '''
-                    <div class="chat-row">
-                      <div class="bubble assistant typing">
-                        <div class="typing-indicator">
-                          <span></span><span></span><span></span>
-                        </div>
-                      </div>
-                    </div>
-                    <style>
-                    .typing-indicator {
-                        display: flex;
-                        align-items: center;
-                        gap: 5px;
-                    }
-                    .typing-indicator span {
-                        height: 8px;
-                        width: 8px;
-                        background: white;
-                        display: inline-block;
-                        border-radius: 50%;
-                        animation: typing 1.4s infinite;
-                        margin: 0 2px;
-                    }
-                    .typing-indicator span:nth-child(2) {
-                        animation-delay: 0.2s;
-                    }
-                    .typing-indicator span:nth-child(3) {
-                        animation-delay: 0.4s;
-                    }
-                    @keyframes typing {
-                        0% { transform: translateY(0); opacity: 0.5; }
-                        50% { transform: translateY(-5px); opacity: 1; }
-                        100% { transform: translateY(0); opacity: 0.5; }
-                    }
-                    </style>
-                    ''',
-                    unsafe_allow_html=True,
-                )
-                
-                # Process the query
-                with st.spinner(""):
+                with st.spinner("Retrieving and generating..."):
                     answer = answer_query(q, top_k=5, concise=False)
-                
-                # Update the chat history with the answer
-                st.session_state.chat_history[-1]["a"] = answer
+                ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                st.session_state.chat_history.append({"q": q, "a": answer, "ts": ts})
                 st.session_state.load_question = ""
-                
                 # Force an immediate rerun so the chat display updates now
                 st.experimental_rerun()
     except Exception:
@@ -174,59 +126,10 @@ with col_main:
         if st.button("Send", key="send_fallback"):
             q = txt.strip()
             if q:
-                # Add user question to chat history immediately
-                ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                st.session_state.chat_history.append({"q": q, "a": "", "ts": ts})
-                
-                # Add typing indicator
-                st.markdown(
-                    '''
-                    <div class="chat-row">
-                      <div class="bubble assistant typing">
-                        <div class="typing-indicator">
-                          <span></span><span></span><span></span>
-                        </div>
-                      </div>
-                    </div>
-                    <style>
-                    .typing-indicator {
-                        display: flex;
-                        align-items: center;
-                        gap: 5px;
-                    }
-                    .typing-indicator span {
-                        height: 8px;
-                        width: 8px;
-                        background: white;
-                        display: inline-block;
-                        border-radius: 50%;
-                        animation: typing 1.4s infinite;
-                        margin: 0 2px;
-                    }
-                    .typing-indicator span:nth-child(2) {
-                        animation-delay: 0.2s;
-                    }
-                    .typing-indicator span:nth-child(3) {
-                        animation-delay: 0.4s;
-                    }
-                    @keyframes typing {
-                        0% { transform: translateY(0); opacity: 0.5; }
-                        50% { transform: translateY(-5px); opacity: 1; }
-                        100% { transform: translateY(0); opacity: 0.5; }
-                    }
-                    </style>
-                    ''',
-                    unsafe_allow_html=True,
-                )
-                
-                # Process the query
-                with st.spinner(""):
+                with st.spinner("Retrieving and generating..."):
                     answer = answer_query(q, top_k=5, concise=False)
-                
-                # Update the chat history with the answer
-                st.session_state.chat_history[-1]["a"] = answer
+                ts = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                st.session_state.chat_history.append({"q": q, "a": answer, "ts": ts})
                 st.session_state.load_question = ""
-                
                 # Force rerun so chat bubbles appear immediately
                 st.experimental_rerun()
-'''
