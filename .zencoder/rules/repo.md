@@ -3,90 +3,70 @@ description: Repository Information Overview
 alwaysApply: true
 ---
 
-# RAG Publications Project Information
+# RAG Publications Assistant Information
 
 ## Summary
-A Retrieval-Augmented Generation (RAG) application with dual interfaces: a Streamlit app and a Flask web application. The system allows users to query publications data and upload documents (PDF, DOCX, TXT) for question answering. It uses Jina AI for embeddings, Qdrant for vector storage, and Cohere for LLM capabilities with conversation memory.
+A Flask-based Retrieval-Augmented Generation (RAG) assistant designed for analyzing publication content. It leverages Nomic embeddings, Qdrant vector database, and Cohere/OpenRouter LLMs to provide context-aware answers. The system supports dynamic file uploads (PDF, DOCX, TXT, JSON) and maintains persistent chat history using MySQL.
 
 ## Structure
-- **app.py**: Main Streamlit application entry point for querying publications
-- **app_flask.py**: Flask web application with document upload functionality
-- **rag_utils.py**: Core RAG functionality and utilities shared by both interfaces
-- **data/**: Contains publication dataset in JSON format
-- **embeddings/**: Module for generating embeddings using Jina AI
-- **llm/**: Module for LLM interaction with Cohere
-- **memory/**: Module for chat history persistence using MySQL database
-- **retrieval/**: Module for retrieving relevant chunks from vector store
-- **templates/**: HTML templates for the Flask web interface
-- **static/**: CSS and JavaScript files for the web interface
-- **uploads/**: Directory for storing uploaded documents
+- **Root**: Contains main application files (`app_flask.py`, `rag_utils.py`), configuration files, and documentation.
+- **embeddings/**: Logic for generating vector embeddings using the Nomic API.
+- **llm/**: Interface for LLM interaction, supporting ChatCohere and OpenAI-compatible endpoints.
+- **memory/**: Manages persistent conversation history via MySQL.
+- **retrieval/**: Handles semantic search and chunk retrieval from Qdrant.
+- **templates/**: HTML templates for the web interface (Landing, Welcome, and Chat).
+- **static/**: CSS and JavaScript assets for the frontend UI.
+- **data/**: Contains the default publication dataset (`project_1_publications.json`).
+- **uploads/**: Destination for user-uploaded documents during processing.
 
 ## Language & Runtime
-**Language**: Python
-**Version**: Python 3.10 (based on venv structure)
+**Language**: Python  
+**Version**: 3.x  
+**Framework**: Flask 2.3.3  
 **Package Manager**: pip
 
 ## Dependencies
 **Main Dependencies**:
-- Flask/Streamlit: Web frameworks for different interfaces
-- PyPDF2/pdfminer.six: PDF text extraction with fallback mechanism
-- python-docx: DOCX document processing
-- qdrant_client: Vector database client for similarity search
-- langchain_cohere: LLM integration for answer generation
-- mysql.connector: Database connection for conversation memory
-- requests: HTTP client for API calls to embedding services
-
-**External Services**:
-- Jina AI: For embeddings generation (API key required)
-- Qdrant: Vector database for storing embeddings (cloud instance)
-- Cohere: LLM provider for question answering
-- MySQL: Database for conversation memory persistence
-
-## Document Processing
-**Supported Formats**: PDF, DOCX, TXT, DOC
-**PDF Extraction**: Uses PyPDF2 with pdfminer.six as fallback for problematic PDFs
-**Text Processing**: Cleans and truncates text, splits into paragraph chunks
-**Vector Storage**: Creates document-specific Qdrant collections for each upload
-
-## RAG Pipeline
-**Embedding Generation**: Jina AI embeddings API (jina-embeddings-v2-base-en model)
-**Vector Database**: Qdrant Cloud with collection per document
-**Retrieval**: Semantic search with cosine similarity for top-k chunks
-**Context Building**: Combines retrieved chunks into unified context
-**Question Refinement**: Uses conversation history to create standalone questions
-**Answer Generation**: Cohere LLM with context-based prompting
-**Fallback Mechanism**: Uses text search when vector search fails
-
-## Web Interfaces
-**Streamlit App**: 
-- Run with: `streamlit run app.py`
-- Simple chat interface for querying publications dataset
-- Chat history panel with reload functionality
-
-**Flask App**:
-- Run with: `python app_flask.py`
-- Document upload functionality with multiple format support
-- Modern chat interface with message bubbles
-- Markdown support for formatted responses
-- Session-based chat history
+- `flask`: Web framework
+- `qdrant-client`: Vector database interaction
+- `langchain-cohere` & `langchain-core`: LLM orchestration
+- `mysql-connector-python`: MySQL database connectivity
+- `PyPDF2`, `python-docx`, `pdfminer.six`: Document parsing
+- `python-dotenv`: Environment variable management
+- `openai`: Fallback LLM client
 
 ## Build & Installation
 ```bash
-# Install required packages
-pip install flask streamlit PyPDF2 python-docx qdrant-client langchain-cohere python-dotenv mysql-connector-python requests pdfminer.six
+# Install dependencies
+pip install -r requirements.txt
 
-# Set up MySQL database
-# Create database named 'rag_assistant' with a 'chat_history' table
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your API keys and DB credentials
 
-# Run Flask application
+# Run the application
 python app_flask.py
-
-# Or run Streamlit application
-streamlit run app.py
 ```
 
+## Main Files & Resources
+- **app_flask.py**: Main entry point and Flask route definitions.
+- **rag_utils.py**: Core RAG pipeline logic orchestration.
+- **memory/memory_manager.py**: Database schema interaction for chat history.
+- **llm/llm_handler.py**: LLM prompt engineering and API management.
+- **data/project_1_publications.json**: Initial dataset for the assistant.
+
+## Testing & Validation
+The project does not include a formal testing framework (like pytest). Validation is performed via:
+- Manual testing scripts within `if __name__ == "__main__":` blocks in `memory_manager.py`, `rag_backend.py`, and `llm_handler.py`.
+- Debug print statements within the Flask application flow.
+
 ## Database Configuration
-**Type**: MySQL
-**Connection**: Local database (localhost)
-**Database Name**: rag_assistant
-**Tables**: chat_history (stores user questions, AI responses, chat IDs, and timestamps)
+**MySQL**:
+- Table: `chat_history`
+- Schema: `(email, chat_id, question, response, created_at)`
+- Purpose: Stores persistent user interactions for context-aware querying.
+
+**Qdrant**:
+- Purpose: Vector storage for publication chunks and user-uploaded document segments.
+- Distance Metric: Cosine
+- Embeddings: `nomic-embed-text-v1`

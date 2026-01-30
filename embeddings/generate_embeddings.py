@@ -14,44 +14,36 @@ def clean_and_truncate(text, max_len=4000):
     text = re.sub(r'\s+', ' ', text).strip()
     return text[:max_len]
 
-def generate_jina_embeddings_batch(api_key, texts, model_name="jina-embeddings-v2-base-en"):
-    print(f"Generating embeddings for {len(texts)} texts using {model_name}")
+def generate_nomic_embeddings_batch(api_key, texts, model_name="nomic-embed-text-v1", task_type="search_document"):
+    print(f"Generating embeddings for {len(texts)} texts using {model_name} (Task: {task_type})")
     
     if not texts:
-        print("ERROR: Empty texts list provided to generate_jina_embeddings_batch")
+        print("ERROR: Empty texts list provided to generate_nomic_embeddings_batch")
         return []
     
-    url = "https://api.jina.ai/v1/embeddings"
+    url = "https://api-atlas.nomic.ai/v1/embedding/text"
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {api_key}",
     }
     data = {
-        "input": texts,
-        "model": model_name
+        "texts": texts,
+        "model": model_name,
+        "task_type": task_type
     }
     
     try:
-        print(f"Sending request to Jina AI API with first text: {texts[0][:50]}...")
+        print(f"Sending request to Nomic API with first text: {texts[0][:50]}...")
         response = requests.post(url, headers=headers, json=data)
         response.raise_for_status()
         
         result = response.json()
-        embeddings = [item["embedding"] for item in result.get("data", [])]
+        embeddings = result.get("embeddings", [])
         print(f"Successfully generated {len(embeddings)} embeddings")
-        
-        if len(embeddings) != len(texts):
-            print(f"WARNING: Expected {len(texts)} embeddings but got {len(embeddings)}")
         
         return embeddings
     except Exception as e:
         print(f"ERROR: Embedding batch failed: {e}")
-        print(f"First chunk: {texts[0][:50]}...")
-        try:
-            print(f"Response status: {response.status_code}")
-            print(f"Response text: {response.text[:200]}...")
-        except:
-            pass
         return []
 
 def main(api_key, qdrant_url, qdrant_api_key):
@@ -79,11 +71,11 @@ def main(api_key, qdrant_url, qdrant_api_key):
     print(f"Total document chunks to embed: {len(chunks)}")
 
     embeddings = []
-    batch_size = 5
+    batch_size = 20 # Nomic supports larger batches
     for i in range(0, len(chunks), batch_size):
         batch = chunks[i:i + batch_size]
         print(f"Embedding batch from index {i} to {i + len(batch) - 1}")
-        batch_embeddings = generate_jina_embeddings_batch(api_key, batch)
+        batch_embeddings = generate_nomic_embeddings_batch(api_key, batch)
         if not batch_embeddings:
             print(f"Skipping batch from {i} due to failure.")
             continue
@@ -98,9 +90,11 @@ def main(api_key, qdrant_url, qdrant_api_key):
     qdrant = QdrantClient(url=qdrant_url, api_key=qdrant_api_key)
     collection_name = "publications"
 
-    if qdrant.collection_exists(collection_name):
-        print(f"Deleting existing collection '{collection_name}'")
+    try:
+        print(f"Attempting to delete existing collection '{collection_name}'")
         qdrant.delete_collection(collection_name)
+    except Exception as e:
+        print(f"Note: Could not delete collection (might not exist): {e}")
 
     print(f"Creating collection '{collection_name}'")
     qdrant.create_collection(
@@ -126,12 +120,12 @@ if __name__ == "__main__":
     load_dotenv()
     
     # Get credentials from environment variables
-    API_KEY = os.getenv('JINA_API_KEY')
+    API_KEY = os.getenv('NOMIC_API_KEY')
     QDRANT_URL = os.getenv('QDRANT_URL')
     QDRANT_API_KEY = os.getenv('QDRANT_API_KEY')
     
     if not API_KEY or not QDRANT_URL or not QDRANT_API_KEY:
-        print("Error: Missing environment variables. Please set JINA_API_KEY, QDRANT_URL, and QDRANT_API_KEY in your .env file.")
+        print("Error: Missing environment variables. Please set NOMIC_API_KEY, QDRANT_URL, and QDRANT_API_KEY in your .env file.")
         exit(1)
         
     main(API_KEY, QDRANT_URL, QDRANT_API_KEY)

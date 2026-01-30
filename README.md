@@ -1,73 +1,90 @@
 # RAG Publications Assistant
 
-A Flask-based Retrieval Augmented Generation (RAG) assistant for publications data. This application uses vector search with Qdrant and Jina AI embeddings to provide accurate answers to questions about publications.
+A professional Flask-based Retrieval-Augmented Generation (RAG) assistant for analyzing publication content. This application uses Nomic embeddings, Qdrant vector database, and Cohere/OpenRouter LLMs to provide intelligent, context-aware answers.
 
-## Features
+## 🚀 Features
 
-- Real-time chat interface with enhanced typing indicators
-- Vector search using Qdrant for semantic retrieval
-- Jina AI embeddings for high-quality semantic understanding
-- Publication data retrieval and summarization
-- Chat history memory for contextual conversations
-- MySQL database for persistent storage of conversations
+- **Dynamic Context Isolation**: Unique session management (`chat_id`) prevents memory interference when switching between different publications.
+- **Persistent Chat History**: All interactions are stored in MySQL, accessible via a dedicated "History Modal" in the UI.
+- **Multi-Format Support**: Upload and query PDF, DOCX, TXT, and JSON files seamlessly.
+- **Advanced UI/UX**: 
+  - Real-time typing indicators with pulsing animations.
+  - Light/Dark mode toggle with complete CSS variable integration.
+  - Streamlined chat bubbles with feedback icons.
+  - Floating background particles and glassmorphism effects.
+- **Nomic Embeddings**: High-quality semantic understanding using `nomic-embed-text-v1`.
 
-## Architecture
+## 🛠️ Tech Stack
 
-The application consists of several components:
+- **Backend**: Flask (Python)
+- **Vector DB**: Qdrant
+- **Embeddings**: Nomic AI
+- **LLM**: ChatCohere (via LangChain)
+- **Database**: MySQL (for persistent memory)
+- **Frontend**: Bootstrap 5, FontAwesome, Marked.js (Markdown support)
 
-- **Flask Backend**: Handles HTTP requests and serves the web interface
-- **Embedding Generation**: Creates vector embeddings using Jina AI
-- **Vector Database**: Stores and retrieves embeddings using Qdrant
-- **LLM Integration**: Uses Cohere for question refinement and answer generation
-- **Memory Management**: Stores conversation history in MySQL
+## 📋 Prerequisites
 
-## Quick Start
+- Python 3.8+
+- MySQL Server
+- Qdrant (Cloud or Local)
+- API Keys: Nomic, Cohere (or OpenRouter)
 
-1. Clone the repository
-2. Copy `.env.example` to `.env` and add your API keys
-3. Install dependencies: `pip install -r requirements.txt`
-4. Set up the MySQL database (see [Setup Guide](SETUP.md))
-5. Run the application: `python app_flask.py`
-6. Open your browser and navigate to `http://localhost:5000`
+## ⚙️ Setup
 
-## Detailed Documentation
+1. **Clone the repository**:
+   ```bash
+   git clone <your-repo-url>
+   cd RAG_Publications_Project
+   ```
 
-- [Setup Guide](SETUP.md)
-- [Usage Examples](USAGE.md)
+2. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-## Sample Inputs and Outputs
+3. **Environment Configuration**:
+   Create a `.env` file in the root directory:
+   ```env
+   NOMIC_API_KEY=your_nomic_key
+   QDRANT_URL=your_qdrant_url
+   QDRANT_API_KEY=your_qdrant_key
+   COHERE_API_KEY=your_cohere_key
+   DB_HOST=localhost
+   DB_USER=root
+   DB_PASSWORD=your_password
+   DB_NAME=rag_assistant
+   ```
 
-### Example 1: Basic Question
-**Input**: "What are the latest publications about machine learning?"
+4. **Database Setup**:
+   ```sql
+   CREATE DATABASE rag_assistant;
+   USE rag_assistant;
+   CREATE TABLE chat_history (
+       id INT AUTO_INCREMENT PRIMARY KEY,
+       email VARCHAR(255),
+       chat_id VARCHAR(255),
+       question TEXT,
+       response TEXT,
+       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+   );
+   ```
 
-**Output**: 
-```
-Based on the provided context, there are several recent publications about machine learning:
+5. **Run the App**:
+   ```bash
+   python app_flask.py
+   ```
 
-1. "Advances in Neural Network Architectures" which discusses recent developments in neural network design and implementation.
+## 📂 Project Structure
 
-2. "Machine Learning for Time Series Analysis" which explores applications of ML algorithms for analyzing temporal data.
+- `app_flask.py`: Main entry point and routes.
+- `rag_utils.py`: RAG pipeline orchestration.
+- `memory/`: MySQL memory management logic.
+- `llm/`: LLM handler for question refinement and generation.
+- `embeddings/`: Nomic embedding generation logic.
+- `static/`: CSS, JS, and UI assets.
+- `templates/`: HTML templates for the interface.
 
-3. "Reinforcement Learning in Robotics" which covers how RL techniques are being applied to robotic systems.
-
-These publications cover various aspects of machine learning including neural networks, time series analysis, and reinforcement learning applications.
-```
-
-### Example 2: Follow-up Question
-**Input**: "Which one has the most citations?"
-
-**Output**:
-```
-According to the information in the dataset, "Advances in Neural Network Architectures" has the highest citation count with 127 citations. This publication has been particularly influential in the field of deep learning research.
-```
-
-## License
+## 🛡️ License
 
 MIT License
-
-## Acknowledgements
-
-- Jina AI for embedding generation
-- Qdrant for vector database
-- Cohere for language model capabilities
-- Flask for the web framework

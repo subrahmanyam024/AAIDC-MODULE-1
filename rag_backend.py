@@ -82,17 +82,26 @@ if __name__ == "__main__":
 '''
 
 
-
+import os
+from dotenv import load_dotenv
 from qdrant_client import QdrantClient # type: ignore
-from embeddings.generate_embeddings import generate_jina_embeddings_batch # type: ignore
+from embeddings.generate_embeddings import generate_nomic_embeddings_batch # type: ignore
 from retrieval.retrieval import retrieve_relevant_chunks # type: ignore
 from llm.llm_handler import modify_question_with_memory, generate_answer, CHAT_LLM
 from memory.memory_manager import get_last_questions, insert_interaction
 
+# Load environment variables
+load_dotenv()
 
-API_KEY = 'jina_6209620aeb344cfbbb9a8b72bf00602aCd7ZK49F2Ra3lKMSu7tQbfj9y6GO'
+# Get credentials from environment variables
+API_KEY = os.getenv('NOMIC_API_KEY')
+QDRANT_URL = os.getenv('QDRANT_URL')
+QDRANT_API_KEY = os.getenv('QDRANT_API_KEY')
+
+'''API_KEY = 'jina_6209620aeb344cfbbb9a8b72bf00602aCd7ZK49F2Ra3lKMSu7tQbfj9y6GO'
 QDRANT_URL = 'https://2e1b44d6-19f8-4bd4-92f6-ae782f1dd015.us-west-1-0.aws.cloud.qdrant.io'
 QDRANT_API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.R8GZpGgYx-o-Lw5kbjTNobZJaGziiA1ghDDUySZFVH0'
+'''
 
 qdrant = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
 
@@ -100,7 +109,7 @@ def rag_pipeline(user_question, user_email, chat_id):
     past_questions = get_last_questions(user_email, chat_id, limit=3)
     refined_question = modify_question_with_memory(user_question, past_questions)
     print("Refined question:", refined_question)
-    query_embedding = generate_jina_embeddings_batch(API_KEY, [refined_question])[0]
+    query_embedding = generate_nomic_embeddings_batch(API_KEY, [refined_question], model_name="nomic-embed-text-v1")[0]
     relevant_chunks = retrieve_relevant_chunks(qdrant, query_embedding)
     print("Retrieved context:", relevant_chunks)
     answer = generate_answer(CHAT_LLM, relevant_chunks, refined_question)

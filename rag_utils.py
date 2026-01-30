@@ -2,7 +2,7 @@
 import os
 from dotenv import load_dotenv
 from qdrant_client import QdrantClient # type: ignore
-from embeddings.generate_embeddings import generate_jina_embeddings_batch
+from embeddings.generate_embeddings import generate_nomic_embeddings_batch
 from retrieval.retrieval import retrieve_relevant_chunks
 from llm.llm_handler import modify_question_with_memory, generate_answer, CHAT_LLM
 from memory.memory_manager import get_last_questions, insert_interaction
@@ -11,7 +11,7 @@ from memory.memory_manager import get_last_questions, insert_interaction
 load_dotenv()
 
 # Get credentials from environment variables
-API_KEY = os.getenv('JINA_API_KEY')
+API_KEY = os.getenv('NOMIC_API_KEY')
 QDRANT_URL = os.getenv('QDRANT_URL')
 QDRANT_API_KEY = os.getenv('QDRANT_API_KEY')
 
@@ -23,17 +23,15 @@ if not API_KEY or not QDRANT_URL or not QDRANT_API_KEY:
 qdrant = QdrantClient(url=QDRANT_URL, api_key=QDRANT_API_KEY)
 
 def answer_query(user_question, top_k=5, user_email="user@test.com", chat_id="chat001",
-                 concise=False, max_sentences=2, max_chars=400, return_full=False):
+                 concise=False, max_sentences=2, max_chars=400, return_full=False, collection_name="publications"):
     """
     Retrieve context, generate a full answer using the LLM, store it, and return it.
-    - This function now returns the full answer produced by the model (no summarization).
-    - Keep 'concise' parameter for compatibility but it is ignored here.
     """
     # retrieval + refinement
     past_questions = get_last_questions(user_email, chat_id, limit=3)
     refined_question = modify_question_with_memory(user_question, past_questions)
-    query_embedding = generate_jina_embeddings_batch(API_KEY, [refined_question])[0]
-    relevant_chunks = retrieve_relevant_chunks(qdrant, query_embedding, top_k=top_k)
+    query_embedding = generate_nomic_embeddings_batch(API_KEY, [refined_question], model_name="nomic-embed-text-v1", task_type="search_query")[0]
+    relevant_chunks = retrieve_relevant_chunks(qdrant, query_embedding, top_k=top_k, collection_name=collection_name)
 
     # build combined context from retrieved chunks
     texts = []
@@ -71,5 +69,5 @@ def retrieve(query, top_k=5):
     """
     Convenience wrapper to call retrieval.retrieval.retrieve_relevant_chunks directly.
     """
-    query_embedding = generate_jina_embeddings_batch(API_KEY, [query])[0]
+    query_embedding = generate_nomic_embeddings_batch(API_KEY, [query], model_name="nomic-embed-text-v1", task_type="search_query")[0]
     return retrieve_relevant_chunks(qdrant, query_embedding, top_k=top_k)

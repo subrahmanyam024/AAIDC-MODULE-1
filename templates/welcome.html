@@ -257,16 +257,35 @@
             </div>
             
             <p class="welcome-subtitle">
-                Welcome to the RAG Publications Assistant! This AI-powered tool helps you find information and insights from our publications database.
+                Upload your document (PDF, TXT, or JSON) to start an AI-powered conversation based on its content.
             </p>
+            
+            <div class="upload-section mb-4">
+                <form id="uploadForm" action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="fileInput" class="form-label d-none">Choose file</label>
+                        <input class="form-control bg-dark text-white border-secondary" type="file" id="fileInput" name="file" accept=".pdf,.txt,.json,.docx" required>
+                    </div>
+                    <button type="submit" class="btn-primary" id="uploadBtn">
+                        <i class="fas fa-upload"></i> Upload and Start Chat
+                    </button>
+                </form>
+                
+                <div id="loader" class="mt-3" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-primary">Processing your document and generating embeddings... Please wait.</p>
+                </div>
+            </div>
             
             <div class="features-container">
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-search"></i>
                     </div>
-                    <h3 class="feature-title">Smart Search</h3>
-                    <p class="feature-description">Find relevant information across all publications instantly</p>
+                    <h3 class="feature-title">Dynamic RAG</h3>
+                    <p class="feature-description">Upload your own files and query them immediately</p>
                 </div>
                 
                 <div class="feature-card">
@@ -274,25 +293,32 @@
                         <i class="fas fa-brain"></i>
                     </div>
                     <h3 class="feature-title">AI-Powered</h3>
-                    <p class="feature-description">Get intelligent answers based on publication content</p>
+                    <p class="feature-description">Get intelligent answers based on your specific content</p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-history"></i>
                     </div>
-                    <h3 class="feature-title">Chat History</h3>
-                    <p class="feature-description">Review your previous questions and answers</p>
+                    <h3 class="feature-title">Multi-Format</h3>
+                    <p class="feature-description">Supports PDF, DOCX, TXT, and JSON files</p>
                 </div>
             </div>
             
-            <a href="{{ url_for('chat') }}" class="btn-primary">
-                <i class="fas fa-comments"></i> Start Chat
+            <p class="text-secondary small">Or click below to use the default publications dataset</p>
+            <a href="{{ url_for('reset_to_default') }}" class="btn-primary btn-sm mb-4">
+                <i class="fas fa-book"></i> Use Default Dataset
             </a>
         </div>
     </div>
     
     <script>
+        // Form submission and loader
+        document.getElementById('uploadForm').addEventListener('submit', function() {
+            document.getElementById('uploadBtn').style.display = 'none';
+            document.getElementById('loader').style.display = 'block';
+        });
+
         // Create particles effect
         document.addEventListener('DOMContentLoaded', function() {
             const particlesContainer = document.getElementById('particles');

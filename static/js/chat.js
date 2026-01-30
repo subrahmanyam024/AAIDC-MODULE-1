@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const typingIndicator = document.getElementById('typingIndicator');
     const clearChatButton = document.getElementById('clearChat');
     const toggleThemeButton = document.getElementById('toggleTheme');
+    const chatHistoryBtn = document.getElementById('chatHistoryBtn');
+    const historyModal = new bootstrap.Modal(document.getElementById('historyModal'));
+    const historyModalBody = document.getElementById('historyModalBody');
     
     // Theme state (dark theme is default)
     let isDarkTheme = true;
@@ -38,22 +41,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const message = document.createElement('div');
         message.className = `message ${isUser ? 'user-message' : 'assistant-message'}`;
         
-        // Add message header with avatar and sender name
-        const messageHeader = document.createElement('div');
-        messageHeader.className = 'message-header';
-        
-        const avatar = document.createElement('div');
-        avatar.className = 'message-avatar';
-        avatar.innerHTML = isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
-        
-        const sender = document.createElement('div');
-        sender.className = 'message-sender';
-        sender.textContent = isUser ? 'You' : 'Assistant';
-        
-        messageHeader.appendChild(avatar);
-        messageHeader.appendChild(sender);
-        message.appendChild(messageHeader);
-        
         // Add message content
         const contentElement = document.createElement('div');
         contentElement.className = 'message-content';
@@ -62,6 +49,15 @@ document.addEventListener('DOMContentLoaded', function() {
             contentElement.textContent = text;
         } else {
             contentElement.innerHTML = formatMessage(text);
+            
+            // Add feedback buttons for assistant messages
+            const feedback = document.createElement('div');
+            feedback.className = 'message-feedback';
+            feedback.innerHTML = `
+                <button class="btn-feedback"><i class="far fa-thumbs-up"></i></button>
+                <button class="btn-feedback"><i class="far fa-thumbs-down"></i></button>
+            `;
+            contentElement.appendChild(feedback);
         }
         
         message.appendChild(contentElement);
@@ -94,27 +90,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Clear input
         userInput.value = '';
         
-        // COMPLETELY REVISED TYPING INDICATOR IMPLEMENTATION
-        // First, make sure it's properly positioned in the chat
-        typingIndicator.style.display = 'flex';
-        typingIndicator.style.opacity = '1';
-        
-        // Force a reflow to ensure the browser renders the indicator
-        void typingIndicator.offsetWidth;
-        
-        // Make sure it's visible by scrolling to it
-        scrollToBottom();
-        
-        // Add a pulsing effect to make it more noticeable
-        typingIndicator.classList.add('pulsing');
-        
-        // Make the indicator more visible with a stronger style
-        typingIndicator.style.border = '3px solid #6e8efb';
-        typingIndicator.style.boxShadow = '0 0 20px rgba(110, 142, 251, 0.8)';
-        
-        // Log to console to verify it's being shown
-        console.log("Showing typing indicator - " + new Date().toISOString());
-        
         // Send to backend
         fetch('/query', {
             method: 'POST',
@@ -130,31 +105,11 @@ document.addEventListener('DOMContentLoaded', function() {
             return response.json();
         })
         .then(data => {
-            // Keep the typing indicator visible for a moment before hiding
-            // This ensures users can see it even with fast responses
-            setTimeout(() => {
-                // Remove the pulsing effect
-                typingIndicator.classList.remove('pulsing');
-                
-                // Start fading out the typing indicator
-                typingIndicator.style.opacity = '0';
-                
-                // After a short fade-out, hide it completely and show the response
-                setTimeout(() => {
-                    typingIndicator.style.display = 'none';
-                    
-                    // Add assistant message
-                    addMessage(data.answer, false, data.timestamp);
-                    
-                    // Log to console to verify it's being hidden
-                    console.log("Hiding typing indicator and showing response - " + new Date().toISOString());
-                }, 300);
-            }, 500); // Keep visible for at least 500ms
+            // Add assistant message
+            addMessage(data.answer, false, data.timestamp);
         })
         .catch(error => {
             console.error('Error:', error);
-            typingIndicator.classList.remove('pulsing');
-            typingIndicator.style.display = 'none';
             addMessage('Sorry, there was an error processing your request. Please try again.', false);
         });
     }
@@ -165,50 +120,32 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (isDarkTheme) {
             // Switch to dark theme
-            document.documentElement.style.setProperty('--primary-gradient', 'linear-gradient(135deg, #6e8efb, #a777e3)');
-            document.documentElement.style.setProperty('--secondary-gradient', 'linear-gradient(135deg, #a777e3, #6e8efb)');
             document.documentElement.style.setProperty('--dark-bg', '#0f172a');
-            document.documentElement.style.setProperty('--darker-bg', '#0a1122');
-            document.documentElement.style.setProperty('--dark-surface', '#1e293b');
-            document.documentElement.style.setProperty('--dark-card', '#334155');
-            document.documentElement.style.setProperty('--dark-border', '#475569');
+            document.documentElement.style.setProperty('--body-bg', '#0a1122');
+            document.documentElement.style.setProperty('--header-bg', '#0f172a');
+            document.documentElement.style.setProperty('--footer-bg', '#0f172a');
             document.documentElement.style.setProperty('--dark-text', '#f8fafc');
             document.documentElement.style.setProperty('--dark-text-secondary', '#cbd5e1');
-            document.documentElement.style.setProperty('--user-message-gradient', 'linear-gradient(135deg, #6e8efb, #a777e3)');
-            document.documentElement.style.setProperty('--assistant-message-bg', 'rgba(30, 41, 59, 0.8)');
-            
-            // Update background
-            document.body.style.backgroundImage = `
-                radial-gradient(circle at 10% 20%, rgba(110, 142, 251, 0.1) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(167, 119, 227, 0.1) 0%, transparent 20%),
-                radial-gradient(circle at 50% 50%, rgba(30, 41, 59, 0.05) 0%, transparent 100%)
-            `;
-            
-            // Update icon
-            toggleThemeButton.innerHTML = '<i class="fas fa-sun"></i>';
-        } else {
-            // Switch to light theme
-            document.documentElement.style.setProperty('--primary-gradient', 'linear-gradient(135deg, #0ea5e9, #3b82f6)');
-            document.documentElement.style.setProperty('--secondary-gradient', 'linear-gradient(135deg, #3b82f6, #0ea5e9)');
-            document.documentElement.style.setProperty('--dark-bg', '#f8fafc');
-            document.documentElement.style.setProperty('--darker-bg', '#f1f5f9');
-            document.documentElement.style.setProperty('--dark-surface', '#ffffff');
-            document.documentElement.style.setProperty('--dark-card', '#f1f5f9');
-            document.documentElement.style.setProperty('--dark-border', '#e2e8f0');
-            document.documentElement.style.setProperty('--dark-text', '#0f172a');
-            document.documentElement.style.setProperty('--dark-text-secondary', '#64748b');
-            document.documentElement.style.setProperty('--user-message-gradient', 'linear-gradient(135deg, #0ea5e9, #3b82f6)');
-            document.documentElement.style.setProperty('--assistant-message-bg', 'rgba(255, 255, 255, 0.8)');
-            
-            // Update background
-            document.body.style.backgroundImage = `
-                radial-gradient(circle at 10% 20%, rgba(14, 165, 233, 0.05) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 20%),
-                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 100%)
-            `;
+            document.documentElement.style.setProperty('--assistant-message-bg', '#1e293b');
+            document.documentElement.style.setProperty('--input-bg', '#1e293b');
+            document.documentElement.style.setProperty('--dark-border', '#475569');
             
             // Update icon
             toggleThemeButton.innerHTML = '<i class="fas fa-moon"></i>';
+        } else {
+            // Switch to light theme
+            document.documentElement.style.setProperty('--dark-bg', '#f1f5f9');
+            document.documentElement.style.setProperty('--body-bg', '#ffffff');
+            document.documentElement.style.setProperty('--header-bg', '#ffffff');
+            document.documentElement.style.setProperty('--footer-bg', '#f8fafc');
+            document.documentElement.style.setProperty('--dark-text', '#1e293b');
+            document.documentElement.style.setProperty('--dark-text-secondary', '#64748b');
+            document.documentElement.style.setProperty('--assistant-message-bg', '#f1f5f9');
+            document.documentElement.style.setProperty('--input-bg', '#ffffff');
+            document.documentElement.style.setProperty('--dark-border', '#e2e8f0');
+            
+            // Update icon
+            toggleThemeButton.innerHTML = '<i class="fas fa-sun"></i>';
         }
     }
     
@@ -233,27 +170,38 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                // Clear chat UI with animation
+                // Fade out current chat content
                 chatBody.style.opacity = 0;
                 
                 setTimeout(() => {
-                    // Clear chat UI
+                    // Clear all messages
                     chatBody.innerHTML = `
                         <div class="empty-state">
-                            <i class="fas fa-robot empty-state-icon"></i>
-                            <h3>Welcome to RAG Publications Assistant</h3>
-                            <p>Ask questions about the publications dataset and get answers powered by AI. I'm here to help you find the information you need from our collection of research papers.</p>
+                            <div class="chatbot-label">AI PUBLICATIONS ASSISTANT</div>
+                            <h3>Understanding Publication Content</h3>
+                            <p>Ask me anything about the research papers in our dataset. I can summarize content, find specific information, or help you understand complex topics.</p>
                             <div class="example-questions">
                                 <div class="example-question" onclick="useExample('What publications are about RAG?')">What publications are about RAG?</div>
                                 <div class="example-question" onclick="useExample('Summarize recent publications on LLMs')">Summarize recent publications on LLMs</div>
-                                <div class="example-question" onclick="useExample('What is RAG?')">What is RAG?</div>
-                                <div class="example-question" onclick="useExample('How do I add memory to a chatbot?')">How do I add memory to a chatbot?</div>
+                                <div class="example-question" onclick="useExample('What are the key findings in neural networks?')">What are the key findings in neural networks?</div>
+                                <div class="example-question" onclick="useExample('Compare different forecasting models')">Compare different forecasting models</div>
                             </div>
                         </div>
                     `;
                     
+                    // Re-add hidden typing indicator
+                    const typingIndicator = document.createElement('div');
+                    typingIndicator.className = 'typing-indicator';
+                    typingIndicator.id = 'typingIndicator';
+                    typingIndicator.innerHTML = `
+                        <div class="message-avatar"><i class="fas fa-robot"></i></div>
+                        <span></span><span></span><span></span>
+                    `;
+                    chatBody.appendChild(typingIndicator);
+                    
                     // Fade back in
                     chatBody.style.opacity = 1;
+                    scrollToBottom();
                 }, 300);
             }
         })
@@ -354,6 +302,48 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initialize particles
     createParticles();
+    
+    // History Modal Logic
+    function loadHistory() {
+        historyModalBody.innerHTML = `
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        `;
+        
+        fetch('/history')
+            .then(response => response.json())
+            .then(data => {
+                if (data.length === 0) {
+                    historyModalBody.innerHTML = '<div class="text-center py-5"><i class="fas fa-history mb-3" style="font-size: 3rem; opacity: 0.3;"></i><p>No chat history found yet.</p></div>';
+                    return;
+                }
+                
+                let html = '<div class="history-list">';
+                data.forEach(item => {
+                    html += `
+                        <div class="history-item mb-4 p-3" style="background: rgba(255,255,255,0.05); border-radius: 12px; border-left: 4px solid var(--user-message-bg);">
+                            <div class="small text-muted mb-2"><i class="far fa-calendar-alt me-1"></i> ${item.timestamp}</div>
+                            <div class="fw-bold mb-2">Q: ${item.question}</div>
+                            <div class="message-content" style="opacity: 0.9;">A: ${formatMessage(item.answer)}</div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                historyModalBody.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error fetching history:', error);
+                historyModalBody.innerHTML = '<div class="alert alert-danger">Error loading history. Please try again later.</div>';
+            });
+    }
+
+    chatHistoryBtn.addEventListener('click', function() {
+        loadHistory();
+        historyModal.show();
+    });
     
     // Function to use example questions
     window.useExample = function(text) {

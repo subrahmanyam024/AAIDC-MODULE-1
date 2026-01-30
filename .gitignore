@@ -42,6 +42,16 @@ uploads/*
 logs/
 *.log
 
+# Extra documentation and unused scripts
+git_push_instructions.txt
+publication.md
+README_FLASK_UI.md
+SETUP.md
+SUBMISSION_GUIDE.md
+USAGE.md
+rag_backend.py
+data/
+
 # Database
 *.db
 *.sqlite3
