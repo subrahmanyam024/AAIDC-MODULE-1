@@ -26,9 +26,11 @@ build/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# IDE specific files
+# IDE and Tool specific files
 .idea/
 .vscode/
+.zencoder/
+.zenflow/
 *.swp
 *.swo
 
