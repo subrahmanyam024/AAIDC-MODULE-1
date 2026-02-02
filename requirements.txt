@@ -2,7 +2,7 @@ flask==2.3.3
 python-dotenv==1.0.0
 qdrant-client>=1.7.0
 requests==2.31.0
-langchain-cohere==0.1.0
+langchain-cohere==0.3.0
 langchain-core>=0.1.32
 mysql-connector-python==8.2.0
 PyPDF2==3.0.1
